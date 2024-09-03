@@ -1,5 +1,436 @@
-template-repository (1.0-1) unstable; urgency=medium
+iucode-tool (2.3.1-3) unstable; urgency=medium
 
-  * Initial release
+  * Source-only upload for testing eligibility.
 
- -- Tsic404 <liuheng@deepin.org>  Sat, 28 Jan 2023 13:46:49 +0800
+ -- Cyril Brulebois <kibi@debian.org>  Fri, 17 Feb 2023 20:51:49 +0100
+
+iucode-tool (2.3.1-2) unstable; urgency=medium
+
+  * Move source and binary from contrib/utils to utils:
+    + Demote intel-microcode from Recommends to Suggests, since
+      intel-microcode already depends on it the other way around.
+    + Following the 2022 General Resolution about non-free firmware,
+      intel-microcode is moving to non-free-firmware. Having iucode-tool
+      in main makes it possible to have intel-microcode deployed on systems
+      set up with only main and non-free-firmware.
+
+ -- Cyril Brulebois <kibi@debian.org>  Fri, 17 Feb 2023 01:39:39 +0100
+
+iucode-tool (2.3.1-1) unstable; urgency=medium
+
+  * New upstream bugfix release:
+    + iucode_tool: fix filter by revision parser on i686
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 05 Feb 2018 22:42:31 -0200
+
+iucode-tool (2.3-1) unstable; urgency=medium
+
+  * New upstream release:
+    + Support revision-based matching in microcode update filters
+    + Support exact --scan-system as a runtime option (before, it was a
+      compile-time option and disabled in Debian builds)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 28 Jan 2018 13:46:14 -0200
+
+iucode-tool (2.2-1) unstable; urgency=medium
+
+  * New upstream release:
+    + README: update for mixed dat and bin Intel releases
+    + README: add an example of microcode with multiple sigs
+    + iucode_tool: fix microcode count when selecting extended signatures
+    + build tooling changes
+  * debian/docs: ship upstream NEWS file.
+  * debian/control: build-depend on newer automake.
+    Upstream now requires automake 1.13 or newer.
+  * debian/copyright: add licenses for m4/
+  * debian/copyright: use https for format URL
+  * debian/{watch,upstream/signing-key.asc}: support upstream signature checking
+  * debian/control: bump standards version to 4.1.0
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 28 Aug 2017 15:47:46 -0300
+
+iucode-tool (2.1.2-2) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 18 Jun 2017 22:46:47 -0300
+
+iucode-tool (2.1.2-1) experimental; urgency=medium
+
+  * New upstream release:
+    + iucode_tool: compare payloads of similar (not just duplicate) MCUs
+    + iucode_tool: skip small files as if empty in the -tr loader
+  * Target experimental due to the freeze for the Debian "stretch" release
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Wed, 15 Feb 2017 20:53:55 -0200
+
+iucode-tool (2.1.1-1) unstable; urgency=high
+
+  * New upstream release:
+    + Fix heap buffer overflow on -tr loader (CVE-2017-0357)
+  * debian/copyright: update for new upstream release
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri, 13 Jan 2017 10:36:00 -0200
+
+iucode-tool (2.1-1) unstable; urgency=medium
+
+  * New upstream release:
+    + The early initramfs cpio archives created by iucode_tool are now
+      deterministic.  Instead of the current system time, the date of
+      the latest microcode included in the early initramfs will be used.
+    + There is a new option to minimize the size of the early initramfs:
+      --mini-earlyfw.  This option causes iucode_tool to create a non-
+      standard cpio archive which is typically 736 bytes smaller.
+      WARNING: the microcode data file might not be visible to the
+      regular initramfs when this mode is used.
+    + iucode-tool will now create valid early initramfs archives past
+      year 2038.
+    + Change the strategy to add defensive padding to the early-initramfs
+      archive: add an empty directory entry to the cpio archive in order
+      to force the correct 16-byte alignment for the microcode data by
+      default.  For --mini-earlyfs, keep the old strategy of appending
+      extra NULs to the end of the microcode data file name.
+  * debian/control: correct build-depends versioning of autoconf, automake.
+    Correct the minimum required versions of autoconf and automake, which
+    were bumped by upstream version 2.0.
+  * debian/compat, rules, control: modernize and enable full hardening
+    + update debian/rules copyright date
+    + switch to dh-based simplified debian/rules (debhelper v9)
+    + opt-in to full hardening for PIE and bindnow
+    As a side-effect, we now fully honor DEB_*_STRIP, etc.
+  * debian/watch: add uscan watch file.
+    Add a debian/watch uscan version 3 watchfile to automatically check the
+    newest iucode-tool release tarball version, using the "latest" branch of
+    the iucode/releases gitlab project.
+  * debian/changelog: fix typos on older entires.
+  * debian/copyright: switch to DEP-5 format.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 10 Nov 2016 23:27:52 -0200
+
+iucode-tool (2.0-1) unstable; urgency=low
+
+  * New upstream release:
+    + This new major version has several non-backwards-compatible
+      changes.  Scripts that scrape iucode_tool's stdout/stderr messages
+      might have to be updated, and the behavior for -s and -S options
+      changed.
+      + The microcode listing output format used by --list and
+        --list-all changed: the processor flags mask field is now
+        labeled "pf_mask" instead of "pf mask", and the first field
+        (bundle id/microcode id) is wider for --list-all, and completely
+        changed for --list (refer to next entry).
+      + The output for the --list option now uses the same microcode
+        numbering used in --list-all and error messages, and also the
+        same indentation as --list-all.  For this reason, --list will
+        output the bundle assignment list to stdout when not in --quiet
+        mode, the same way --list-all does.
+      + The --scan-system/-S option can now only be specified once, and
+        it may be overridden by -s !<signature> options that come
+        +after* it in command line ordering.  To emulate the previous
+        behavior, always specify --scan-system just once, and as the
+        last option (i.e. after any -s options).
+      + Error and warning messages, as well as some verbose (and debug)
+        messages were updated, and some of them were demoted to higher
+        verbosity levels.
+    + Other relevant changes since v1.6.1:
+      + Microcodes are now sorted by signature (ascending) and processor
+        flags mask (descending).  Before, microcodes with the same
+        signature but different processor flags mask had unspecified
+        ordering.
+      + The .dat format loader was optimized to run a lot faster on
+        files that match the Intel layout exactly, and improved its
+        error detection.
+      + iucode_tool now flushes output data files to permanent storage
+        using fdatasync() before closing them, to better detect write
+        errors.  This causes a performance hit, but it is much safer.
+      + Fix large file support (LFS) on 32-bit builds.
+      + Abort with an error when attempting to write more than 4GiB to a
+        cpio (early initramfs) archive, due to a limitation of that cpio
+        file format.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Mon, 12 Sep 2016 20:17:39 -0300
+
+iucode-tool (1.6.1-1) unstable; urgency=medium
+
+  * New upstream release:
+    + iucode_tool: append microcode bundles to linked list in O(1)
+    + iucode_tool: stop allocating twice the required memory for a bundle
+    + iucode_tool: don't close input files twice
+      load_intel_microcode() would cause fds to be closed twice. iucode_tool
+      is not multi-threaded and isn't otherwise affected by this bug, but
+      unfortunately there is a free() call between the first and second
+      close().  When running iucode_tool under some sort of malloc
+      instrumentation insane enough to open file descriptors on free()
+      inside the instrumented process' context, or indirectly linked to a
+      multi-threaded glibc module/plugin that could do the same, bad things
+      could happen.
+    + iucode_tool(8): update Linux notes for up to v4.6
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 05 Jun 2016 17:50:41 -0300
+
+iucode-tool (1.6-1) unstable; urgency=medium
+
+  * New upstream release:
+    + iucode_tool: fix another downgrade+loose date filter corner case.
+    + iucode_tool: warn of shadowed microcode in downgrade mode.
+    + iucode_tool(8): document warning when downgrade mode fails.
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 15 May 2016 10:08:05 -0300
+
+iucode-tool (1.5.2-1) unstable; urgency=medium
+
+  * New upstream release
+    + Support mixed-stepping configurations in the default version of
+      --scan-system (broken since iucode-tool 1.2-1)
+    + README and manpage updates
+  * debian/control: bump standards version (no changes required)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 30 Apr 2016 11:35:47 -0300
+
+iucode-tool (1.5.1-1) unstable; urgency=medium
+
+  * New upstream release
+    + several fixes for the "downgrade mode", including one for a bug
+      that would cause iucode_tool to enter an infinite loop
+    + document downgrade mode limitations in the manpage
+    + other minor fixes
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 13 Feb 2016 20:21:12 -0200
+
+iucode-tool (1.5-1) unstable; urgency=medium
+
+  * New upstream release
+    + There is a new option to write out microcodes, capable of writing
+      out every revision of every microcode: --write-all-named-to.  All
+      other write out options will only output a single revision of a
+      microcode
+    + iucode_tool(8): fix parameter name of --write-named-to.
+    + iucode_tool(8): add two examples for the recovery loader (-tr)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri, 16 Oct 2015 23:41:35 -0300
+
+iucode-tool (1.4-1) unstable; urgency=medium
+
+  * New upstream release
+    + Implement a microcode recover mode (-tr) for the binary loader,
+      which searches for valid microcode(s) inside a generic (binary)
+      data file of unknown format
+    + Report empty data files using ENOENT instead of EINVAL in the
+      low-level loader functions.  This is can happen to non-empty files
+      in the -tr and -td loaders, as well as when reading an empty file
+      from stdin, FIFO, pipe, character device, etc.
+    + Notify the user when we fail to find any microcode in a data file
+      when the low-level loader returns ENOENT, and continue processing
+      in that case
+    + In -vv mode, print a message before reading a file, and also when
+      skipping empty files or reading a directory
+    + Fix spelling of default-firmware-dir option in configure,
+      thanks to Timo Gurr for the report and fix
+    + Replace "deselect" with "unselect" in the manpage text
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 03 Oct 2015 13:34:12 -0300
+
+iucode-tool (1.3-1) unstable; urgency=medium
+
+  * New upstream release
+    + Make it safe to call iucode_tool with stdout and/or stderr closed
+    + Ignore multiple attempts to read microcode data from stdin, as all
+      data will have been read by the first attempt
+    + Document in the manpage the arbitrary maximum limit of 1GiB worth of
+      binary data per microcode data file.  The other limits are too large
+      to bother documenting
+    + Microcode data file loader fixes and enhancements:
+      + Improve IO error detection
+      + Print the line number when reporting .dat parsing errors
+      + Allow comments after valid data for .dat files, previously they
+        had to be on a line of their own
+      + Rework the .dat parser to make it less convoluted, and optimize it
+        for the exact .dat file layout Intel has been using in the last 15
+        years
+    + Minor build fixes
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 24 May 2015 19:31:23 -0300
+
+iucode-tool (1.2.1-1) experimental; urgency=low
+
+  * New upstream release
+    + Upstream moved to https://gitlab.com/iucode-tool
+    + Manpage fixes and updates
+    + Flush stdout properly to not mix output with stderr
+    + Improve command line parser error messages
+  * control: update URL fields for the new upstream location
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 29 Mar 2015 20:53:03 -0300
+
+iucode-tool (1.2-2) experimental; urgency=low
+
+  * control: enable building on x32 (closes: #777232)
+  * debian/copyright: update copyright notices
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue, 17 Feb 2015 20:34:12 -0200
+
+iucode-tool (1.2-1) experimental; urgency=low
+
+  * New upstream release
+    + Documentation updates
+    + iucode_tool: use the cpuid instruction directly to implement
+      --scan-system.  This fixes an scalability issue in systems
+      with many processors.
+  * Target experimental due to Debian jessie freeze
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 14 Feb 2015 13:39:16 -0200
+
+iucode-tool (1.1.1-1) unstable; urgency=medium
+
+  * New upstream release
+    + Fix issues found by the Coverity static checker:
+    + CID 72165: An off-by-one error caused an out-of-bounds write to a
+      buffer while loading large microcode data files in ascii format
+    + CID 72163: The code could attempt to close an already closed file
+      descriptor in certain conditions when processing directories
+    + CID 72161: Stop memory leak in error path when loading microcode
+      data files
+    + CID 72159, 72164, 72166, 72167, 72168, 72169: Cosmetic issues
+      that could not cause problems at runtime
+  * debian/control: bump standards version to 3.9.6
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue, 28 Oct 2014 17:02:42 -0200
+
+iucode-tool (1.1-1) unstable; urgency=medium
+
+  * New upstream release
+    + Don't output duplicates for microcodes with extended signatures
+      to the same file or to the kernel
+    + When writing an early initramfs, pad its trailer with zeros to
+      the next 1024-byte boundary.  This is done so that the next
+      initramfs segment will be better aligned, just in case.  The
+      entire cpio medatada overhead is now exactly 1024 bytes
+    + Manpage style fixes: use iucode_tool consistently, groff formatting
+    + Refuse to load ridiculously large data files (limit set to 1GiB)
+  * debian/lintian-override: override hyphen-used-as-minus-sign
+    as iucode-tool(8) now uses proper groff hyphens, but not in
+    a way the lintian test can detect.
+  * debian/rules: remove autoconf-1.14 autogenerated files on clean
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Fri, 12 Sep 2014 08:54:33 -0300
+
+iucode-tool (1.0.3-1) unstable; urgency=medium
+
+  * New upstream release
+    + Properly check microcode metadata date to be valid packed BCD in
+      strict mode
+    + Do not assume a non-zero microcode Total Size field to be valid, it
+      is valid only when the Data Size field is non-zero.  Fortunately,
+      Intel always set reserved fields to zero on released microcode, so
+      this bug was never (and is unlikely to ever be) triggered
+    + Linux kernel bug workaround: when generating the early initramfs
+      archive, append NULs to the microcode data file name to pad the
+      start of the microcode data inside the initramfs archive to a
+      16-byte boundary.  Document this issue on the manpage, the
+      workaround is only effective if the start of our early initramfs
+      cpio segment is 16-byte aligned in the final initramfs archive
+    + Fix several cosmetic and minor code issues
+    + Manpage fixes and enhancements
+  * debian/control: add debian/master branch information to Vcs-Git field
+  * debian/control: bump standards-version to 3.9.5
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue, 12 Aug 2014 08:22:07 -0300
+
+iucode-tool (1.0.2-1) unstable; urgency=low
+
+  * New upstream maintenance release
+    + Mention iucode-tool's new home at gitorious in documentation
+    + Warn user when --scan-system fails due to errors such as a lack
+      of permission to access the cpuid devices
+    + Use the libc optimized memcmp() to compare microcode
+    + Minor manpage updates
+    + --strict-checks now verifies that the microcode update date
+      is not utterly insane
+  * debian/control: update for new upstream location at Gitorious
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 10 May 2014 18:35:36 -0300
+
+iucode-tool (1.0.1-1) unstable; urgency=low
+
+  * New upstream maintenance release
+    + Fix several cosmetic code issues
+    + Manpage updates
+      + Make it clear that the output order of microcodes is not stabilized
+      + Make it clear that iucode_tool always break links when writing a
+        data file, and that it doesn't replace files atomically, so they
+        can get corrupted/lost if iucode-tool is interrupted while writing
+      + Reword several notes for better readability
+    + Use openat() when loading from a directory and when creating files in
+      a directory.  Thus, iucode-tool will read/write to the same directory
+      even while racing another process that is trying to rename it while
+      iucode-tool is already running
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 14 Dec 2013 21:01:41 -0200
+
+iucode-tool (1.0-1) unstable; urgency=low
+
+  * New upstream release
+    + Add verbose title to manpage iucode_tool(8)
+    + Add support to write an early initramfs archive for Linux v3.9
+  * install iucode-tool symlinks to iucode_tool (closes: #689128)
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sat, 25 May 2013 13:40:57 -0300
+
+iucode-tool (0.9-1) unstable; urgency=low
+
+  * New upstream release
+    + Document missing -W, --write-named option in iucode_tool(8)
+      manpage (closes: #687963)
+    + Print the number of unique signatures in verbose mode
+    + Add loose date-based filtering (--loose-date-filtering option),
+      which is useful when trying to select microcode for very old
+      processors
+    + Skip empty files and directories instead of aborting with an
+      error
+    + Add an option to default to an empty selection (-s!)
+    + Ensure that microcodes with the same metadata have the same
+      opaque data (payload) when in --strict-checks mode (default)
+  * Update debian/copyright to match upstream's
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 28 Mar 2013 23:48:48 -0300
+
+iucode-tool (0.8.3-1) unstable; urgency=low
+
+  * New upstream release
+    + Fix regression introduced in 0.8.2 that caused all microcodes
+      to be selected by --scan-system on a box with unsupported
+      processors (e.g. non-Intel)
+    + Update README: Intel has some microcode update information in
+      some public processor specification update documents
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 26 Aug 2012 18:38:54 -0300
+
+iucode-tool (0.8.2-1) unstable; urgency=low
+
+  * New upstream release
+    + Update documentation and manpages for the new microcode
+      update interface in Linux v3.6.
+    + Fail safe when --scan-system cannot access the cpuid driver:
+      instead of not selecting anything, still select all microcodes
+      if no other microcode selection option was used (closes: #683178)
+  * debian/control: add X-Vcs-* fields
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Sun, 29 Jul 2012 10:06:35 -0300
+
+iucode-tool (0.8.1-1) unstable; urgency=low
+
+  * New upstream release
+    + inform user with an error message if cpuid driver is missing, and
+      --scan-system was requested
+    + manpage updates
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Tue, 24 Jul 2012 11:53:05 -0300
+
+iucode-tool (0.8-1) unstable; urgency=low
+
+  * Initial public release (closes: #611133)
+    + Reduced functionality release, we need the tool in the archive for
+      bootstrapping, as it will become a build-dependency of the intel-microcode
+      package
+
+ -- Henrique de Moraes Holschuh <hmh@debian.org>  Thu, 07 Jun 2012 12:57:37 -0300

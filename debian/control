@@ -1,15 +1,25 @@
-Source: template-repository
-Section: unknown
+Source: iucode-tool
+Section: utils
 Priority: optional
-Maintainer: Tsic404 <liuheng@deepin.org>
-Build-Depends: debhelper (>= 11)
-Standards-Version: 4.1.3
-Homepage: https://github.com/deepin-community/template-repository
-#Vcs-Browser: https://salsa.debian.org/debian/deepin-community-template-repository
-#Vcs-Git: https://salsa.debian.org/debian/deepin-community-template-repository.git
+Maintainer: Henrique de Moraes Holschuh <hmh@debian.org>
+Build-Depends: debhelper (>= 9), autotools-dev, automake (>= 1:1.13), autoconf (>= 2.69)
+Standards-Version: 4.1.0
+Homepage: https://gitlab.com/iucode-tool
+Vcs-Git: https://gitlab.com/iucode-tool/iucode-tool.git -b debian/master
+Vcs-Browser: https://gitlab.com/iucode-tool/iucode-tool/tree/debian/master
 
-Package: template-repository
-Architecture: any
+Package: iucode-tool
+Architecture: i386 amd64 x32
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Suggests: intel-microcode (>= 1)
+Description: Intel processor microcode tool
+ iucode_tool is a program to manipulate Intel® X86 and X86-64 processor
+ microcode collections, and to use the kernel facilities to upgrade the
+ microcode on Intel system processors.
+ .
+ It can load microcode data files in text and binary format, sort, list and
+ filter the microcodes contained in these files, write selected microcodes to a
+ new file in binary format, or upload them to the kernel.
+ .
+ It operates on non-free microcode data downloaded directly from Intel or
+ installed by the intel-microcode package.
