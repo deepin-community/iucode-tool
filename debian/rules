@@ -1,4 +1,37 @@
 #!/usr/bin/make -f
+# debian/rules for iucode-tool, dh version
+# Copyright (c) 2011-2016 by Henrique de Moraes Holschuh
+# Published under the GNU GPL license version 2 or any later versions
+
+# DebHelper control
+export DH_ALWAYS_EXCLUDE=CVS:.svn:.git
+
+# Build control
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all
+export DEB_CFLAGS_MAINT_APPEND := -Wall -pipe
 
 %:
 	dh $@
+
+# retool using upstream's bootstrap script
+configure: configure.ac Makefile.am
+	@dh_testdir
+	./autogen.sh
+
+# teach dh to bootstrap the build system
+override_dh_auto_configure: configure
+	dh_auto_configure
+
+# enforce recreation of every autobuilt file on every build
+override_dh_auto_clean:
+	dh_testdir
+	rm -f build-stamp configure-stamp
+	rm -rf autom4te.cache
+
+	[ ! -f Makefile ] || $(MAKE) distclean
+
+	rm -f config.sub config.guess configure config.log
+	rm -fr autom4te.cache
+
+	rm -f Makefile.in aclocal.m4 Makefile
+	rm -f compile depcomp install-sh missing iucode_tool_config.h.in
